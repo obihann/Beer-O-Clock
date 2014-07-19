@@ -1,0 +1,19 @@
+{
+    "appKeys": {},
+    "capabilities": [
+        ""
+    ],
+    "companyName": "jeffhann@gmail.com",
+    "longName": "Beer O'Clock",
+    "projectType": "native",
+    "resources": {
+        "media": []
+    },
+    "shortName": "Beer O'Clock",
+    "uuid": "5734fb9a-c629-4e47-b16a-dc8fb1ed1f57",
+    "versionCode": 1,
+    "versionLabel": "1.0",
+    "watchapp": {
+        "watchface": false
+    }
+}

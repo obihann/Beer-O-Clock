@@ -5,6 +5,9 @@ Window *window;
 TextLayer *text_date_layer;
 TextLayer *text_countdown_layer;
 TextLayer *text_time_layer;
+TextLayer *text_beer_layer;
+TextLayer *text_hours_layer;
+TextLayer *text_white_layer;
 Layer *line_layer;
 
 void line_layer_update_callback(Layer *layer, GContext* ctx) {
@@ -17,8 +20,9 @@ void handle_minute_tick(struct tm *tick_time, TimeUnits units_changed) {
   static char time_text[] = "00:00";
   static char date_text[] = "Xxxxxxxxx 00";
   char hour_remaining_text_temp[] = "00";
-  static char hour_remaining_text[] = "00 xxxxx xxxx";
-  //static char beer_text[] = "until beer oclock";
+  static char hour_remaining_text[] = "00";
+  static char beer_text[] = "Beer O'Clock";
+  static char beer_text_remaining[] = "Hours Left";
 
   char *time_format;
 
@@ -43,7 +47,7 @@ void handle_minute_tick(struct tm *tick_time, TimeUnits units_changed) {
   
   if (hour_remaining <= 17) {
     hour_remaining = 17 - hour_remaining;
-    snprintf(hour_remaining_text_temp, 100, "%d hours", hour_remaining);
+    snprintf(hour_remaining_text_temp, 100, "%d", hour_remaining);
   }
   
   strcpy(hour_remaining_text, hour_remaining_text_temp);
@@ -56,7 +60,8 @@ void handle_minute_tick(struct tm *tick_time, TimeUnits units_changed) {
 
   text_layer_set_text(text_time_layer, time_text);
   text_layer_set_text(text_countdown_layer, hour_remaining_text);
-  //text_layer_set_text(text_beer_layer, beer_text);
+  text_layer_set_text(text_beer_layer, beer_text);
+  text_layer_set_text(text_hours_layer, beer_text_remaining);
 }
 
 void handle_deinit(void) {
@@ -70,35 +75,46 @@ void handle_init(void) {
 
   Layer *window_layer = window_get_root_layer(window);
 
-  text_date_layer = text_layer_create(GRect(8, 68, 144-8, 168-68));
+  text_time_layer = text_layer_create(GRect(0, 10, 144, 30));
+  text_layer_set_text_alignment(text_time_layer, GTextAlignmentCenter);
+  text_layer_set_text_color(text_time_layer, GColorWhite);
+  text_layer_set_background_color(text_time_layer, GColorClear);
+  text_layer_set_font(text_time_layer, fonts_get_system_font(FONT_KEY_BITHAM_30_BLACK));
+  layer_add_child(window_layer, text_layer_get_layer(text_time_layer));
+
+  text_date_layer = text_layer_create(GRect(0, 40, 144, 30));
+  text_layer_set_text_alignment(text_date_layer, GTextAlignmentCenter);
   text_layer_set_text_color(text_date_layer, GColorWhite);
   text_layer_set_background_color(text_date_layer, GColorClear);
   text_layer_set_font(text_date_layer, fonts_get_system_font(FONT_KEY_GOTHIC_28));
   layer_add_child(window_layer, text_layer_get_layer(text_date_layer));
-
-  text_time_layer = text_layer_create(GRect(1, 1, 144-7, 168-92));
-  text_layer_set_text_color(text_time_layer, GColorWhite);
-  text_layer_set_background_color(text_time_layer, GColorClear);
-  text_layer_set_font(text_time_layer, fonts_get_system_font(FONT_KEY_GOTHIC_28));
-  layer_add_child(window_layer, text_layer_get_layer(text_time_layer));
-
-  text_countdown_layer = text_layer_create(GRect(7, 92, 144-7, 168-92));
-  text_layer_set_text_color(text_countdown_layer, GColorBlack);
-  text_layer_set_background_color(text_countdown_layer, GColorWhite);
-  text_layer_set_font(text_countdown_layer, fonts_get_system_font(FONT_KEY_BITHAM_30_BLACK));
-  layer_add_child(window_layer, text_layer_get_layer(text_countdown_layer));
   
-  /*text_beer_layer = text_layer_create(GRect(7, 100, 144-7, 168-92));
+  text_white_layer = text_layer_create(GRect(0, 80, 144, 100));
+  text_layer_set_text_color(text_white_layer, GColorBlack);
+  text_layer_set_background_color(text_white_layer, GColorWhite);
+  text_layer_set_font(text_white_layer, fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD));
+  layer_add_child(window_layer, text_layer_get_layer(text_white_layer));
+  
+  text_beer_layer = text_layer_create(GRect(0, 80, 144, 30));
+  text_layer_set_text_alignment(text_beer_layer, GTextAlignmentCenter);
   text_layer_set_text_color(text_beer_layer, GColorBlack);
   text_layer_set_background_color(text_beer_layer, GColorClear);
   text_layer_set_font(text_beer_layer, fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD));
-  layer_add_child(window_layer, text_layer_get_layer(text_beer_layer));*/
+  layer_add_child(window_layer, text_layer_get_layer(text_beer_layer));
 
+  text_countdown_layer = text_layer_create(GRect(0, 107, 144, 35));
+  text_layer_set_text_alignment(text_countdown_layer, GTextAlignmentCenter);
+  text_layer_set_text_color(text_countdown_layer, GColorBlack);
+  text_layer_set_background_color(text_countdown_layer, GColorClear);
+  text_layer_set_font(text_countdown_layer, fonts_get_system_font(FONT_KEY_BITHAM_30_BLACK));
+  layer_add_child(window_layer, text_layer_get_layer(text_countdown_layer));
 
-  GRect line_frame = GRect(8, 97, 139, 2);
-  line_layer = layer_create(line_frame);
-  layer_set_update_proc(line_layer, line_layer_update_callback);
-  layer_add_child(window_layer, line_layer);
+  text_hours_layer = text_layer_create(GRect(0, 135, 144, 30));
+  text_layer_set_text_alignment(text_hours_layer, GTextAlignmentCenter);
+  text_layer_set_text_color(text_hours_layer, GColorBlack);
+  text_layer_set_background_color(text_hours_layer, GColorClear);
+  text_layer_set_font(text_hours_layer, fonts_get_system_font(FONT_KEY_GOTHIC_28));
+  layer_add_child(window_layer, text_layer_get_layer(text_hours_layer));
 
   tick_timer_service_subscribe(MINUTE_UNIT, handle_minute_tick);
   handle_minute_tick(NULL, MINUTE_UNIT);

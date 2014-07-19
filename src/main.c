@@ -57,7 +57,7 @@ void handle_minute_tick(struct tm *tick_time, TimeUnits units_changed) {
   int hour_remaining = atoi(hour_remaining_text_temp);
   text_layer_set_text(text_beer_layer, beer_text);
   
-  if (hour_remaining <= 17) {
+  if (hour_remaining < 17) {
     hour_remaining = 17 - hour_remaining;
     snprintf(hour_remaining_text_temp, 100, "%d", hour_remaining);
     text_layer_set_text(text_hours_layer, beer_text_remaining);

@@ -11,23 +11,23 @@ TextLayer *text_white_layer;
 TextLayer *text_drinkup_layer;
 Layer *line_layer;
 
+const char *time_format_12 = "%02I:%M";
+const char *time_format_24 = "%02H:%M";
+const char beer_text[] = "Beer O'Clock";
+const char beer_text_remaining[] = "Hours Left";
+const char drink_up[] = "Drink Up!";
+const int FIVE_OCLOCK = 17;
+
+static char time_text[] = "00:00";
+static char date_text[] = "Xxxxxxxxx 00";
+static char hour_remaining_text[] = "00";
+
 void line_layer_update_callback(Layer *layer, GContext* ctx) {
   graphics_context_set_fill_color(ctx, GColorWhite);
   graphics_fill_rect(ctx, layer_get_bounds(layer), 0, GCornerNone);
 }
 
 void handle_minute_tick(struct tm *tick_time, TimeUnits units_changed) {
-  // Need to be static because they're used by the system later.
-  static char time_text[] = "00:00";
-  static char date_text[] = "Xxxxxxxxx 00";
-  char hour_remaining_text_temp[] = "00";
-  static char hour_remaining_text[] = "00";
-  static char beer_text[] = "Beer O'Clock";
-  static char beer_text_remaining[] = "Hours Left";
-  static char drink_up[] = "Drink Up!";
-
-  char *time_format;
-
   if (!tick_time) {
     time_t now = time(NULL);
     tick_time = localtime(&now);
@@ -37,38 +37,23 @@ void handle_minute_tick(struct tm *tick_time, TimeUnits units_changed) {
   strftime(date_text, sizeof(date_text), "%B %e", tick_time);
   text_layer_set_text(text_date_layer, date_text);
 
-  if (clock_is_24h_style()) {
-    time_format = "%R";
-  } else {
-    time_format = "%I:%M";
-  }
-  
-  strftime(time_text, sizeof(time_text), time_format, tick_time);
-  
-  // Kludge to handle lack of non-padded hour format string
-  // for twelve hour clock.
-  if (!clock_is_24h_style() && (time_text[0] == '0')) {
-    memmove(time_text, &time_text[1], sizeof(time_text) - 1);
-  }
-  
+  strftime(time_text, sizeof(time_text), clock_is_24h_style() ?
+      time_format_24 : time_format_12, tick_time);
+
   text_layer_set_text(text_time_layer, time_text);
-  
-  strftime(hour_remaining_text_temp, sizeof(hour_remaining_text_temp), "%H", tick_time);
-  int hour_remaining = atoi(hour_remaining_text_temp);
   text_layer_set_text(text_beer_layer, beer_text);
-  
-  if (hour_remaining < 17) {
-    hour_remaining = 17 - hour_remaining;
-    snprintf(hour_remaining_text_temp, 100, "%d", hour_remaining);
+
+  int hour_remaining = tick_time->tm_hour;
+  if (hour_remaining < FIVE_OCLOCK) {
+    hour_remaining = FIVE_OCLOCK - hour_remaining;
     text_layer_set_text(text_hours_layer, beer_text_remaining);
-    strcpy(hour_remaining_text, hour_remaining_text_temp);
+    snprintf(hour_remaining_text, sizeof(hour_remaining_text), "%d", hour_remaining);
     text_layer_set_text(text_countdown_layer, hour_remaining_text);
     layer_set_hidden((Layer *)text_drinkup_layer, true);
   } else {
     text_layer_set_text(text_drinkup_layer, drink_up);
     layer_set_hidden((Layer *)text_hours_layer, false);
   }
-  
 }
 
 void handle_deinit(void) {

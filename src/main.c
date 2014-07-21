@@ -47,7 +47,7 @@ void handle_minute_tick(struct tm *tick_time, TimeUnits units_changed) {
   if (hour_remaining < FIVE_OCLOCK) {
     hour_remaining = FIVE_OCLOCK - hour_remaining;
     text_layer_set_text(text_hours_layer, beer_text_remaining);
-    snprintf(hour_remaining_text, sizeof(hour_remaining_text), "%02d", hour_remaining);
+    snprintf(hour_remaining_text, sizeof(hour_remaining_text), "%d", hour_remaining);
     text_layer_set_text(text_countdown_layer, hour_remaining_text);
     layer_set_hidden((Layer *)text_drinkup_layer, true);
   } else {
